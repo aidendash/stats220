@@ -41,13 +41,13 @@ latest_data = rename(logged_data, Time = `What time do you usually have your dai
 ```{r, echo=FALSE}
 # Calculating the minimum number of people seen walking their pets
 min.pets = min(latest_data$Pets)
-min.pets.comment = paste("The smallest number of pets seen on a daily walk is", min.pets)
+min.pets.comment = paste("The smallest number of pets seen being walked on a daily walk is", min.pets)
 print(min.pets.comment)
 ```
 ```{r,echo=FALSE}
 # Calculating the maximum number of people seen walking their pets
 max.pets = max(latest_data$Pets)
-max.pets.comment = paste("The largest number of pets seen on a daily walk is", max.pets)
+max.pets.comment = paste("The largest number of pets seen being walked on a daily walk is", max.pets)
 print(max.pets.comment) 
 ```
 
