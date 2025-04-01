@@ -1,0 +1,112 @@
+---
+title: My dynamic report
+output: html_fragment
+Author: Aiden Liu
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+
+```
+
+## Analysing the ins and outs of peoples' daily walks
+In this project, I am aiming to find insight on the key features during a person's daily walk. I utilised a google form attached to a google sheet to record my results into a table. Moreover, I exported my google sheets into a .csv file. I have 6 columns: Timestamp - The date and time in which the survey was completed, Time - Time the person took their daily walk, Weather - the type of weather during the person's daily walk, Crowdedness - how crowded the person's daily walk was, Joggers - whether the person saw people jogging or exercising during their walk, Pets - how many people did the person see walking their pets during the daily walk. 
+
+- The following variables are categorical: Time, Weather, Crowdedness. 
+- Joggers is a factor variable with 'yes' or 'no' as the input. 
+- Pets is numeric.
+
+
+```{r, echo=FALSE}
+# Importing tidyverse
+library(tidyverse)
+
+# Reading in my survey data using the CSV url
+csv_file = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRJeCOOP8YYJj45QwShuwCptNM10PJCpOx8VQUR1dzOvwhcv9-4PX7cH2OedZYKVhsB5_mV3bvZvV1h/pub?output=csv"
+logged_data = read_csv(csv_file)
+
+# Renaming columns to one key word with respect to the columns
+latest_data = rename(logged_data, Time = `What time do you usually have your daily walk?`, Weather = `What is the weather like when you are walking?`,
+                     Crowdedness = `How crowded are your walks normally?`, Joggers = `Did you observe joggers or people exercising?`, 
+                     Pets =`How many people did you see walking pets?`)
+
+```
+
+## Data Exploration with summary statistics
+
+```{r, echo=FALSE}
+# Calculating the minimum number of people seen walking their pets
+min.pets = min(latest_data$Pets)
+min.pets.comment = paste("The smallest number of pets seen on a daily walk is", min.pets)
+print(min.pets.comment)
+```
+```{r,echo=FALSE}
+# Calculating the maximum number of people seen walking their pets
+max.pets = max(latest_data$Pets)
+max.pets.comment = paste("The largest number of pets seen on a daily walk is", max.pets)
+print(max.pets.comment) 
+```
+
+```{r, echo=FALSE}
+# How many people saw joggers or people exercising on their walk?
+no.of.joggers = latest_data %>% 
+  filter(Joggers == "Yes") %>% # Keeping rows with only Yes in the Joggers column
+  summarise(count = n()) %>% # Keeping the size of the number of rows
+  pull(count)
+joggers.comment = paste("Around", no.of.joggers, "People saw joggers on their daily walk")
+print(joggers.comment)
+```
+
+```{r, echo=FALSE}
+# What was the most common crowdedness during peoples daily walks?
+mode.crowdedness = latest_data %>%
+  count(Crowdedness, sort = TRUE) %>%
+  slice(1) %>% 
+  select(-n)
+most.crowdedness.comment = paste("The most common crowdedness during peoples' daily walk is:", mode.crowdedness)
+print(most.crowdedness.comment)
+```
+
+```{r, echo=FALSE}
+# What was the least common crowdedness during peoples daily walks?
+least.crowdedness = latest_data %>%
+  count(Crowdedness, sort = TRUE) %>% 
+  slice(4) %>% 
+  select(-n)
+least.crowdedness.comment = paste("The least common crowdedness during peoples' daily walk is:", least.crowdedness)
+print(least.crowdedness.comment) 
+```
+
+```{r, echo=FALSE}
+# What is the most common times people have their daily walks?
+mode.time = latest_data %>%
+  count(Time, sort = TRUE) %>%
+  slice(1) %>% 
+  select(-n)
+mode.time.comment = paste("The most common time people have their daily walk is:", mode.time)
+print(mode.time.comment)
+```
+
+## Bar Chart of the times people have their daily walks vs count
+```{r, echo=FALSE}
+# Creating a bar chart of the times people have their daily walks vs count
+ggplot(data = latest_data, mapping = aes(x=Time))+
+  geom_bar(fill = "orange") + # Making the bar chart orange
+  labs(title = "Bar Chart of the times people have their daily walks", x = "Time of day", y = "Count")+ # Labeling my bar chart
+  theme(plot.title = element_text(hjust = 0.5))+ # Centering my title
+  scale_y_continuous(labels = scales::number_format(accuracy = 1)) # Keeping only whole numbers on the y-axis
+```
+
+## Bar Chart of the types of crowdedness during peoples' daily walks
+```{r,echo=FALSE}
+# Creating a bar chart of the types of crowdedness during peoples' daily walks
+ggplot(data = latest_data, mapping=aes(x=Crowdedness))+
+  geom_bar(fill="lightblue") + # Making the bar light blue
+  labs(title="Bar Chart of the Crowdedness people experience on their daily walks", x="Crowdedness", y="Count")+ # Labeling my bar chart
+  theme(plot.title = element_text(hjust = 0.5))+ # Centering my title
+  scale_x_discrete(expand = expansion(mult = 0.05)) # Adding spacing between names of variables on x-axis to avoid names overlapping
+```
